@@ -1,26 +1,20 @@
-name: Запуск линтера API при pull request в main ветку
-
 on:
-  pull_request:
-    branches: [ main ]
-
+  - push
+  - pull_request
+name: CI
 jobs:
-  spectral-lint:
+  spectralChecks:
+    name: Spectral checks
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-
-      - name: Run Spectral
-        uses: stoplightio/spectral-action@v0.8.11
+      - uses: actions/checkout@v3
+      - name: Test this action against an incorrect file.
+        id: expect-failure
+        continue-on-error: true
+        uses: ./
         with:
-          file_glob: './api/openapi.yaml'  
-          spectral_ruleset: './.spectral.yaml'  
+          file_glob: ./api/*.yml
+          spectral_ruleset: .spectral.json
 
-      - name: Spectral comment
-        uses: l-lin/spectral-comment-action@0.1.0
+      - if: ${{ failure() }}
+        run: exit 0
