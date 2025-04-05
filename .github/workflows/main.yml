@@ -1,15 +1,24 @@
-name: Запуск линтера Api при pull request в main ветку
- 
-on: 
-  - pull_request 
+name: Запуск линтера API при PR в main
 
+on:
+  pull_request:
+    branches: [main]
 
-jobs: 
-  build: 
-    name: Run Spectral 
+jobs:
+  spectral-lint:
     runs-on: ubuntu-latest
-    steps: 
-      - uses: actions/checkout@v3
-      - uses: stoplightio/spectral-action@latest
-        with: 
-          file_glob: /openapi.yaml
+    permissions:
+      checks: write
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code (обязательный шаг!)
+        uses: actions/checkout@v4  
+        with:
+          fetch-depth: 0  
+
+      - name: Run Spectral
+        uses: stoplightio/spectral-action@latest 
+        with:
+          file_glob: './openapi/openapi.yml'
