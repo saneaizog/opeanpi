@@ -6,16 +6,17 @@ on:
 
 jobs:
   spectral-lint:
-    name: Run Spectral
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
-      repository-projects: write
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Spectral Linting
-        uses: stoplightio/spectral-action@v0.8.11
-
+      - name: Run Spectral
+        uses: stoplightio/spectral-action@v5
+        with:
+          file_glob: './api/openapi.yaml'  
+          spectral_ruleset: './.spectral.yaml'  
