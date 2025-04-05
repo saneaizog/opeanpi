@@ -1,20 +1,19 @@
-on:
-  - push
-  - pull_request
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
 name: CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
 jobs:
-  spectralChecks:
-    name: Spectral checks
+  linting:
+    name: Linting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Test this action against an incorrect file.
-        id: expect-failure
-        continue-on-error: true
+      - name: Check out repository
+        uses: actions/checkout@v2
+    
+      - name: Run 'spectral lint' for default file, 'openapi-spec.yml'
         uses: ./
         with:
-          file_glob: ./*.yml
-          spectral_ruleset: .spectral.json
-
-      - if: ${{ failure() }}
-        run: exit 0
+          file_path: api/openapi.yaml
