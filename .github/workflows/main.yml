@@ -13,5 +13,5 @@ jobs:
       - uses: stoplightio/spectral-action@latest
         with: 
           file_glob: openapi.yaml
-          fail_on: "warn"
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           spectral_ruleset: '.spectral.yaml'
