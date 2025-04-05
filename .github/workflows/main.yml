@@ -15,12 +15,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: ChatGPT CodeReviewer
-        uses: anc95/ChatGPT-CodeReview@v1.0.21
-
 
       - name: Run Spectral
         uses: stoplightio/spectral-action@v0.8.11
         with:
           file_glob: './api/openapi.yaml'  
           spectral_ruleset: './.spectral.yaml'  
+
+      - name: Spectral comment
+        uses: l-lin/spectral-comment-action@0.1.0
