@@ -15,6 +15,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: ChatGPT CodeReviewer
+        uses: anc95/ChatGPT-CodeReview@v1.0.21
+
+
       - name: Run Spectral
         uses: stoplightio/spectral-action@v0.8.11
         with:
