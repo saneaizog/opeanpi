@@ -11,7 +11,7 @@ tags:
   - name: photo
     description: "Все, связанное с фотографиями"
   - name: auth
-    description: "Все, связанное с регистрацией и авторизацией"
+    description: "Все, связанное с регистрацией и авторизацие"
   - name: likes
     description: "Все, связанное с лайками" 
   - name: friends
