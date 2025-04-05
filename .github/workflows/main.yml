@@ -1,17 +1,31 @@
-name: Запуск линтера Api при pull request в main ветку
- 
-on: 
-  - pull_request 
+name: Запуск линтера API при pull request в main ветку
 
+on:
+  pull_request:
+    branches: [ main ]
 
-jobs: 
-  build: 
-    name: Run Spectral 
+jobs:
+  spectral-lint:
+    name: Run Spectral
     runs-on: ubuntu-latest
-    steps: 
-      - uses: actions/checkout@v3
-      - uses: stoplightio/spectral-action@latest
-        with: 
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Spectral
+        uses: stoplightio/spectral-action@latest
+        with:
           file_glob: './api/*.yaml'
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           spectral_ruleset: '.spectral.yaml'
+
+      - name: Get registration token
+        id: getRegToken
+        run: |
+          curl -X POST \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/actions/runners/registration-token
