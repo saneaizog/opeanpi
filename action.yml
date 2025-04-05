@@ -1,17 +1,32 @@
-# action.yml
-name: 'OAS3 & Swagger2 Lint Action'
-author: 'Ahmet Geymen'
-description: 'Runs Stoplight Spectral lint on your OAS file. Supports Swagger 2.0 or OpenAPI 3.0 format.'
+name: Spectral Linting
+author: Vincenzo Chianese
+description: Lint your files with Spectral
 inputs:
-  file_path: # id of input
-    description: 'Path to OAS file for validation.'
+  file_glob:
+    required: true
+    description: The pattern describing the file paths to lint with Spectral
+    default: '*.oas.{json,yml,yaml}'
+  spectral_ruleset:
     required: false
-    default: 'openapi-spec.yml'
+    description: |
+      Custom ruleset to load in Spectral.
+
+      When unspecified, will try to load the default ruleset (matching .spectral.{yaml,yml,js,json}) if it exists.
+  repo_token:
+    required: false
+    description: |
+      The GitHub App installation access token.
+
+      [Learn more about `GITHUB_TOKEN`](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token#about-the-github_token-secret)
+    default: ${{ github.token }}
+  event_name:
+    required: false
+    description: |
+      The name of the event that triggered the workflow
+    default: ${{ github.event_name }}
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
-  args:
-    - ${{ inputs.file_path }}
+  using: docker
+  image: Dockerfile
 branding:
-  icon: 'fast-forward'  
-  color: 'green'
+  icon: check-square
+  color: blue
