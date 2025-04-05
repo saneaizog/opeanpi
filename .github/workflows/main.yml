@@ -8,13 +8,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Test this action against an incorrect file.
-        id: expect-failure
-        continue-on-error: true
-        uses: ./
-        with:
-          file_glob: ./api/*.yml
-          spectral_ruleset: .spectral.json
-
-      - if: ${{ failure() }}
-        run: exit 0
+      - name: Spectral Linting
+        uses: stoplightio/spectral-action@v0.8.11
