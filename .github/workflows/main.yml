@@ -3,6 +3,10 @@ jobs:
     openapi_check:
       name: "OpenAPI check"
       runs-on: ubuntu-latest
+      permissions:
+        checks: write
+        contents: read
+        pull-requests: write
       steps:
         # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
         - uses: actions/checkout@v2
