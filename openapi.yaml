@@ -1,0 +1,399 @@
+openapi: 3.0.0
+info:
+  title: Photo Catalog API
+  version: 1.0.0
+  description: API для управления каталогом фотографий пользователей.
+servers:
+  - url: http://localhost:3000
+tags:
+  - name: users
+    description: "Всё, связанное с пользователями"
+  - name: photo
+    description: "Все, связанное с фотографиями"
+  - name: auth
+    description: "Все, связанное с регистрацией и авторизацией"
+  - name: likes
+    description: "Все, связанное с лайками" 
+  - name: friends
+    description: "Все, связанное с друзьями"
+paths:
+  /api/v1/auth/register:
+    post:
+      tags:
+        - auth
+      summary: Регистрация пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  maxLength: 20
+                  minLength: 4
+                email:
+                  type: string
+                  example: "example@mail.ru"
+                password:
+                  type: string
+                  description: Пароль должен содержать минимум 8 символов, включая строчные и прописные буквы, цифры и специальные символы.
+                  minLength: 8
+                  pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#\\$%\\^&\\*])[A-Za-z\\d!@#\\$%\\^&\\*]{8,}$"
+      responses:
+        '201':
+          description: Пользователь успешно зарегистрирован
+        '400':
+          description: Ошибка валидации данных
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - auth      
+      summary: Авторизация пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Успешная авторизация
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '401':
+          description: Неверные учетные данные
+
+  /api/v1/users:
+    get:
+      tags:
+        - users    
+      summary: Получение всех пользователей
+      responses:
+        '200':
+          description: Список пользователей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /api/v1/users/{userId}:
+    get:
+      tags:
+        - users  
+      summary: Получение пользователя по ID
+      parameters:
+        - name: userId
+          description: "Идентификатор пользователя"
+          schema:
+            type: string
+          in: path
+          required: true
+          example: "4:15a90cb6-19b0-46f4-67dd-271556777f24:1746"
+      responses:
+        '200':
+          description: Информация о пользователе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Пользователь не найден
+    patch:
+      tags:
+        - users 
+      summary: Обновить данные пользователя
+      parameters:
+        - name: userId
+          description: "Идентификатор пользователя"
+          schema:
+            type: string
+          in: path
+          required: true
+          example: "4:15a90cb6-19b0-46f4-67dd-271556777f24:1746"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Профиль обновлен
+        '400':
+          description: Ошибка валидации данных
+
+  /api/v1/photos:
+    post:
+      tags:
+        - photo
+      summary: Загрузить новую фотографию
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                caption:
+                  type: string
+                  maxLength: 1000
+                location:
+                  type: string
+      responses:
+        '201':
+          description: Фотография успешно загружена
+        '400':
+          description: Ошибка валидации данных
+
+  /api/v1/photos/{photoId}:
+    get:
+      tags:
+        - photo
+      summary: Получить информацию о фотографии
+      parameters:
+        - name: photoId
+          description: "Идентификатор пользователя"
+          schema:
+            type: string
+          in: path
+          required: true
+          example: "4:15a90cb6-19b0-46f4-67dd-271556777f24:1746"
+      responses:
+        '200':
+          description: Фотография успешно получена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+        '404':
+          description: Фотография не найдена
+
+    put:
+      tags:
+        - photo
+      summary: Обновить фотографию
+      parameters:
+        - name: photoId
+          description: "Идентификатор пользователя"
+          schema:
+            type: string
+          in: path
+          required: true
+          example: "4:15a90cb6-19b0-46f4-67dd-271556777f24:1746"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhotoUpdate'
+      responses:
+        '200':
+          description: Фотография успешно обновлена
+        '404':
+          description: Фотография не найдена
+
+    delete:
+      tags:
+        - photo
+      summary: Удалить фотографию
+      parameters:
+        - name: photoId
+          description: "Идентификатор пользователя"
+          schema:
+            type: string
+          in: path
+          required: true
+          example: "4:15a90cb6-19b0-46f4-67dd-271556777f24:1746"
+      responses:
+        '204':
+          description: Фотография успешно удалена
+        '404':
+          description: Фотография не найдена
+
+  /api/v1/likes:
+    post:
+      tags:
+        - likes
+      summary: Лайкнуть фотографию (доступно только для фотографий друзей)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                photoId:
+                  type: integer
+      responses:
+        '201':
+          description: Фотография успешно лайкнута
+        '400':
+          description: Ошибка невозможно лайкнуть свою фотографию или не из списка друзей
+
+    delete:
+      tags:
+        - likes
+      summary: Убрать лайк (доступно только для фотографий друзей)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                photoId:
+                  type: integer
+      responses:
+        '204':
+          description: Лайк успешно убран
+        '400':
+          description: Ошибка невозможно убрать лайк с фотографии не из списка друзей
+  /api/v1/likes/{photoId}:
+    get:
+      tags:
+        - likes    
+      summary: Получение всех пользователей
+      responses:
+        '200':
+          description: Список пользователей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /api/v1/friends:
+    get:
+      tags:
+        - friends
+      summary: Получить список друзей пользователя
+      parameters:
+        - name: userId
+          description: "Идентификатор пользователя"
+          schema:
+            type: string
+          in: path
+          required: true
+          example: "4:15a90cb6-19b0-46f4-67dd-271556777f24:1746"
+        - name: page
+          in: query
+          description: Номер страницы (по умолчанию 1)
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          description: Количество друзей на странице (по умолчанию 10)
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+      responses:
+        '200':
+          description: Успешное получение списка друзей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Пользователь не авторизован
+
+    post:
+      tags:
+        - friends
+      summary: Добавить друга
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                friendId:
+                  type: integer
+                  description: Идентификатор пользователя, которого нужно добавить в друзья
+      responses:
+        '201':
+          description: Друг успешно добавлен
+        '404':
+          description: Пользователь не найден
+        '400':
+          description: Невозможно добавить друга (возможно, уже в друзьях)
+
+  /api/v1/friends/{friendId}:
+    delete:
+      tags:
+        - friends
+      summary: Удалить друга
+      parameters:
+        - name: friendId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Друг успешно удален
+        '404':
+          description: Пользователь или друг не найден
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+
+    UserUpdate:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+    PhotoUpdate:
+      type: object
+      properties:
+        caption:
+          type: string
+        location:
+          type: string     
+    Photo:
+      type: object
+      properties:
+        photoId:
+          type: string
+        description:
+          type: string
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: float
+            longitude:
+              type: number
+              format: float
