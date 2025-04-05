@@ -1,14 +1,17 @@
-name: API Validation
-on: [pull_request]
-jobs:
-  spectral:
+name: Запуск линтера Api при pull request в main ветку
+ 
+on: 
+  - pull_request 
+
+
+jobs: 
+  build: 
+    name: Run Spectral 
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: stoplightio/spectral-action@v5
-        with:
-          file_glob: 'openapi.yaml'
+    steps: 
+      - uses: actions/checkout@v3
+      - uses: stoplightio/spectral-action@latest
+        with: 
+          file_glob: openapi.yaml
+          fail_on: "warn"
           spectral_ruleset: '.spectral.yaml'
